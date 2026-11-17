@@ -3,7 +3,7 @@
 Certification exam preparation: study notes, flashcards, chapter-wise tests and full mock exams.
 Currently covers **ISTQB Certified Tester - Testing with Generative AI (CT-GenAI) v1.1**.
 
-**Live site:** https://ihaider007.github.io/iCertified/
+**Live site:** https://icertified.github.io/
 
 - 212 original practice questions, 5 full mock exams built to the official exam blueprint
 - Chapter-wise practice sets, K1 flashcards, glossary and exam guide
