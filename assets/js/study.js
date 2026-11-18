@@ -2,7 +2,7 @@
 (function () {
   const IC = window.IC; const { esc, icon } = IC; let flashKey = null;
 
-  const tabsHtml = cur => `<div class="tabs-ic">${[['', 'Study path'], ['flash', 'Flashcards'], ['terms', 'Key terms'], ['guide', 'Exam guide']].map(t => `<a href="#/study${t[0] ? '/' + t[0] : ''}" class="${cur === t[0] ? 'on' : ''}">${t[1]}</a>`).join('')}</div>`;
+  const tabsHtml = cur => `<div class="tabs-ic">${[['', 'Study path'], ['flash', 'Flashcards'], ['terms', 'Key terms'], ['guide', 'Exam guide']].filter(t => t[0] !== 'guide' || (IC.cert() && IC.cert().study && IC.cert().study.guide)).map(t => `<a href="#/study${t[0] ? '/' + t[0] : ''}" class="${cur === t[0] ? 'on' : ''}">${t[1]}</a>`).join('')}</div>`;
   const secHtml = (n, s, done, open) => {
     let b = '';
     if (s.bullets) b += `<ul>${s.bullets.map(x => `<li>${x}</li>`).join('')}</ul>`;
@@ -57,7 +57,7 @@
       <div class="ic-card pad mb-3"><h5>Exam facts</h5><div class="kv mt-2"><div><b>${ex.questions}</b><span>multiple-choice questions</span></div><div><b>${ex.totalPoints}</b><span>points in total</span></div><div><b>${IC.passMark(cert, ex.totalPoints)} (${ex.passPercent}%)</b><span>to pass</span></div><div><b>${ex.minutes} min</b><span>+${ex.extraPercent}% non-native</span></div></div><p class="small text-muted mt-3 mb-0">Prerequisite: ${esc(cert.prerequisite)}.</p></div>
       <div class="ic-card pad mb-3"><h5>Points by chapter</h5><div class="table-responsive"><table class="tbl"><thead><tr><th>Chapter</th><th>Questions</th><th>Points</th><th>% of points</th><th>K-levels</th></tr></thead><tbody>${cert.chapters.map(c => { const bp = ex.blueprint[c.n]; const n = Object.values(bp).reduce((a, b) => a + b, 0); return `<tr><td><b>${c.n}. ${esc(c.title)}</b></td><td>${n}</td><td>${c.points}</td><td>${(c.points / ex.totalPoints * 100).toFixed(1)}%</td><td>${Object.keys(bp).map(k => `<span class="badge-k k-${k}">${k} × ${bp[k]}</span>`).join(' ')}</td></tr>`; }).join('')}<tr><td><b>Total</b></td><td><b>${ex.questions}</b></td><td><b>${ex.totalPoints}</b></td><td>100%</td><td></td></tr></tbody></table></div></div>
       <div class="ic-card pad mb-3"><h5>How K-levels shape your strategy</h5><div class="table-responsive"><table class="tbl"><thead><tr><th>Level</th><th>Focus</th><th>Questions</th><th>Points</th><th>Study approach</th></tr></thead><tbody>${g.kLevels.map(r => `<tr><td><span class="badge-k k-${r[0]}">${r[0]}</span></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`).join('')}</tbody></table></div>
-        <div class="callout"><b>Why Chapter 2 matters</b>The 6 K3 questions are worth 12 of 46 points (26%) and 5 of them sit in Chapter 2 – hands-on prompt practice is critical.</div></div>
+        ${g.callout ? `<div class="callout"><b>${g.callout.h}</b>${g.callout.x}</div>` : ''}</div>
       <div class="row g-3 mb-3"><div class="col-lg-6"><div class="ic-card pad h-100"><h5>${icon('clock', 20)} Time management</h5><ul>${g.time.map(t => `<li class="mb-2">${t}</li>`).join('')}</ul></div></div><div class="col-lg-6"><div class="ic-card pad h-100"><h5>${icon('target', 20)} Answering technique</h5><ul>${g.technique.map(t => `<li class="mb-2">${t}</li>`).join('')}</ul></div></div></div>
       <div class="ic-card pad mb-3"><h5>Suggested study plan</h5>${g.plan.map(p => `<div class="lo-row"><span class="lo-id" style="min-width:90px"><b>${p[0]}</b></span><div>${p[1]}</div></div>`).join('')}</div>
       <div class="ic-card pad"><h5>Exam-day checklist</h5><ul class="mb-0">${g.checklist.map(t => `<li class="mb-2">${t}</li>`).join('')}</ul></div>`);
@@ -70,7 +70,7 @@
     const termMap = new Map(); Object.values(S.chapters).forEach(c => c.terms.forEach(t => { if (!termMap.has(t[0])) termMap.set(t[0], { key: 'term|' + t[0], f: t[0], b: t[1], ch: 0, k: 'Term', lo: 'Glossary' }); }));
     const decks = { k1: ['K1 recall', cards.filter(c => c.k === 'K1')], list: ['Key lists', cards.filter(c => c.k === 'List')], terms: ['Glossary', [...termMap.values()]], all: ['Everything', [...cards, ...termMap.values()]] };
     cert.chapters.forEach(ch => { decks['ch' + ch.n] = ['Chapter ' + ch.n, [...cards.filter(c => c.ch === ch.n), ...[...termMap.values()].filter(() => false)]]; });
-    if (!decks[deck]) deck = 'k1';
+    if (!decks[deck]) deck = 'all';
     const known = IC.store.get('flash.' + cert.id, {});
     if (fs.deck !== deck || !fs.order.length) { fs.deck = deck; fs.order = IC.shuffle(decks[deck][1]); fs.i = 0; fs.flip = false; }
     const pool = () => fs.onlyLearning ? fs.order.filter(c => !known[c.key]) : fs.order;
@@ -115,7 +115,7 @@
 
   IC.v.study = (cert, arg, arg2) => {
     if (!cert.study) return IC.setView('<div class="ic-card empty">Study material for this certification is coming soon.</div>');
-    if (arg === 'flash') return flashCards(cert, arg2 || 'k1');
+    if (arg === 'flash') { if (fs.cert !== cert.id) { fs.cert = cert.id; fs.order = []; fs.i = 0; fs.flip = false; fs.deck = ''; } return flashCards(cert, arg2 || 'all'); }
     if (arg === 'terms') return terms(cert);
     if (arg === 'guide') return guide(cert);
     if (arg && /^\d+$/.test(arg)) return chapter(cert, arg);

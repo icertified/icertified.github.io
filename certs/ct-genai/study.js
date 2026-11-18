@@ -330,6 +330,7 @@
     { ch: 5, k: 'List', lo: 'GenAI-5.1.3', f: 'LLM/SLM selection criteria', b: 'Model performance · fine-tuning potential · recurring cost · community and support.' }
   ],
   guide: {
+    callout: { h: 'Why Chapter 2 matters', x: 'The 6 K3 questions are worth 12 of 46 points (26%) and 5 of them sit in Chapter 2 – hands-on prompt practice is critical.' },
     kLevels: [
       ['K1', 'Memorisation', '8 questions', '1 point each', 'Flashcards, glossary, lists (3 phases, 4 attack vectors, 6 prompt components).'],
       ['K2', 'Comprehension', '26 questions', '1 point each', 'Focus on “why/how concepts differ”: chaining vs few-shot vs meta, chatbot vs application.'],

@@ -1,0 +1,88 @@
+/* iCertified – multi-certification platform styles (landing, catalogue, switcher, resume) */
+.chip.on-dark { background: rgba(255, 255, 255, .16); color: #fff; }
+.chnum.sm { width: 34px; height: 34px; font-size: .8rem; border-radius: 10px; background: var(--ic-cert, var(--ic-primary)); }
+.hero h1 .hl { background: linear-gradient(90deg, #fff, var(--ic-lime)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* sidebar: certification switcher + resume */
+.ic-switch { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: 14px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .1); color: #fff; text-align: left; cursor: pointer; transition: .15s; margin-bottom: 4px; }
+.ic-switch:hover { background: rgba(255, 255, 255, .11); }
+.ic-switch .tx { flex: 1; min-width: 0; line-height: 1.15; }
+.ic-switch .tx b { display: block; }
+.ic-switch .tx small { color: var(--ic-side-text); font-size: .7rem; }
+.ic-switch .sw { opacity: .7; }
+.ic-nav a.ic-alt { font-size: .85rem; opacity: .85; }
+.ic-resume { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; text-decoration: none; background: var(--ic-primary-soft); border: 1px solid color-mix(in srgb, var(--ic-primary) 30%, transparent); color: var(--ic-text); transition: .15s; }
+.ic-resume:hover { transform: translateY(-2px); border-color: var(--ic-primary); }
+.ic-resume .ico { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: var(--ic-grad); color: #fff; flex: none; }
+.ic-resume .tx { flex: 1; min-width: 0; line-height: 1.25; }
+.ic-resume .tx small { display: block; color: var(--ic-muted); font-size: .72rem; }
+.ic-resume .tx b { display: block; font-size: .9rem; }
+.ic-sidebar .ic-resume { background: rgba(255, 255, 255, .07); border-color: rgba(255, 255, 255, .12); color: #fff; padding: 10px 12px; }
+.ic-sidebar .ic-resume .tx small { color: var(--ic-side-text); }
+.ic-sidebar .ic-resume .tx b { font-size: .8rem; }
+.ic-resume.on-dark { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .3); color: #fff; }
+.ic-resume.on-dark .tx small { color: rgba(255, 255, 255, .8); }
+.swrow { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; margin-bottom: 8px; border-radius: 14px; border: 2px solid var(--ic-border); background: var(--ic-card); color: var(--ic-text); text-align: left; cursor: pointer; transition: .15s; }
+.swrow:hover, .swrow.on { border-color: var(--ic-cert); background: color-mix(in srgb, var(--ic-cert) 9%, var(--ic-card)); }
+.swrow .tx { flex: 1; line-height: 1.2; }
+.swrow .tx b { display: block; }
+.swrow .tx small { color: var(--ic-muted); }
+
+/* certification cards */
+.cert-card { --cc: var(--ic-cert, var(--ic-primary)); padding: 24px; height: 100%; display: flex; flex-direction: column; position: relative; overflow: hidden; transition: transform .18s, box-shadow .18s, border-color .18s; }
+.cert-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 5px; background: linear-gradient(90deg, var(--cc), color-mix(in srgb, var(--cc) 40%, var(--ic-coral))); }
+.cert-card:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--cc) 55%, var(--ic-border)); box-shadow: 0 18px 40px color-mix(in srgb, var(--cc) 20%, transparent); }
+.cert-card.soon { border-style: dashed; align-items: center; justify-content: center; text-align: center; box-shadow: none; color: var(--ic-muted); }
+.cert-card.soon::before { display: none; }
+.cert-card.soon:hover { transform: none; box-shadow: none; }
+.cc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.cc-badge { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-weight: 800; font-size: 1.15rem; color: #fff; background: linear-gradient(135deg, var(--cc, var(--ic-primary)), color-mix(in srgb, var(--cc, var(--ic-primary)) 50%, var(--ic-coral))); box-shadow: 0 8px 20px color-mix(in srgb, var(--cc, var(--ic-primary)) 40%, transparent); flex: none; }
+.cert-card h4 { margin: 0; font-size: 1.5rem; font-weight: 800; }
+.cc-name { font-weight: 600; }
+.cc-facts { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .78rem; color: var(--ic-muted); margin: 6px 0 16px; }
+.cc-facts span { display: inline-flex; align-items: center; gap: 5px; }
+.cc-actions { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px; padding-top: 6px; }
+.cert-card .btn-primary { --bs-btn-bg: var(--cc); --bs-btn-border-color: var(--cc); --bs-btn-hover-bg: color-mix(in srgb, var(--cc) 82%, #000); --bs-btn-hover-border-color: color-mix(in srgb, var(--cc) 82%, #000); }
+.cert-card .btn-soft { background: color-mix(in srgb, var(--cc) 12%, var(--ic-card)); color: var(--cc); }
+[data-bs-theme="dark"] .cert-card .btn-soft { color: color-mix(in srgb, var(--cc) 62%, #fff); }
+.cert-card .progress-bar { background: linear-gradient(90deg, var(--cc), color-mix(in srgb, var(--cc) 40%, var(--ic-coral))); }
+
+/* landing page */
+.lp-hero { padding: clamp(28px, 5vw, 64px); background: var(--ic-grad); }
+.lp-hero h1 { font-size: clamp(2.1rem, 5vw, 3.7rem); letter-spacing: -.03em; }
+.lp-hero p.lead { font-size: 1.12rem; }
+.lp-stack { position: relative; display: flex; flex-direction: column; gap: 14px; padding: 10px 0 10px 30px; }
+.lp-mini { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 20px; background: rgba(255, 255, 255, .16); border: 1px solid rgba(255, 255, 255, .3); backdrop-filter: blur(10px); color: #fff; animation: floaty 5s ease-in-out infinite; animation-delay: calc(var(--i) * -1.2s); margin-left: calc(var(--i) * 18px); }
+.lp-mini b { display: block; font-size: 1.05rem; }
+.lp-mini small { opacity: .85; }
+.lp-mini.ghost { background: transparent; border-style: dashed; }
+.lp-mini .cc-badge { width: 44px; height: 44px; border-radius: 14px; font-size: 1rem; background: var(--ic-cert, rgba(255, 255, 255, .25)); }
+@keyframes floaty { 50% { transform: translateY(-9px); } }
+.lp-h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 800; letter-spacing: -.02em; margin-top: 6px; }
+.lp-block .ico, .lp-feat .ico { width: 48px; height: 48px; border-radius: 15px; display: grid; place-items: center; background: var(--ic-primary-soft); color: var(--ic-primary); margin-bottom: 14px; }
+.lp-block .ico.t { background: var(--ic-accent-soft); color: var(--ic-accent); }
+.lp-block .ico.w { background: #fff3d6; color: #b45309; }
+.lp-feat { transition: transform .18s; }
+.lp-feat:hover { transform: translateY(-3px); }
+.lp-vs ul { list-style: none; padding: 0; margin: 12px 0 0; }
+.lp-vs li { padding: 9px 0 9px 28px; position: relative; border-bottom: 1px dashed var(--ic-border); }
+.lp-vs li:last-child { border-bottom: 0; }
+.lp-vs li::before { position: absolute; left: 0; top: 9px; font-weight: 800; }
+.lp-vs.before { opacity: .92; }
+.lp-vs.before li::before { content: "\2715"; color: var(--ic-danger); }
+.lp-vs.before h5 { color: var(--ic-danger); }
+.lp-vs.after { border-color: var(--ic-ok); }
+.lp-vs.after li::before { content: "\2713"; color: var(--ic-ok); }
+.lp-vs.after h5 { color: var(--ic-ok); }
+.lp-vs h5 { display: flex; align-items: center; gap: 8px; }
+.lp-flash { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 20px; padding: clamp(20px, 3vw, 32px); border-radius: 22px; color: #fff; background: var(--ic-grad); box-shadow: 0 20px 50px color-mix(in srgb, var(--ic-primary) 30%, transparent); }
+.lp-flash .ico { width: 64px; height: 64px; border-radius: 20px; background: rgba(255, 255, 255, .18); display: grid; place-items: center; }
+.lp-flash .ribbon { background: var(--ic-lime); color: #243300; }
+.lp-flash p { color: rgba(255, 255, 255, .9); max-width: 640px; }
+.lp-flash .btn-light { color: var(--ic-primary-600); }
+.lp-step .n { width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center; font-weight: 800; color: #fff; background: var(--ic-grad); margin-bottom: 12px; }
+.lp-cta { text-align: center; padding: clamp(28px, 4vw, 52px) 20px; border-radius: 24px; color: #fff; background: var(--ic-grad); }
+.lp-cta h3 { font-weight: 800; font-size: clamp(1.5rem, 3vw, 2.1rem); }
+.lp-cta p { opacity: .9; }
+.lp-cta .btn-light { color: var(--ic-primary-600); }
+@media (prefers-reduced-motion: reduce) { .lp-mini, .fade-in, .modal.show .modal-dialog { animation: none !important; } }
