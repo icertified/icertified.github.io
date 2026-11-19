@@ -37,7 +37,7 @@
       <div class="col-lg-6"><div class="ic-card pad h-100"><h5>${icon('shield', 20)} Common traps</h5><ul class="mb-0">${d.traps.map(t => `<li class="mb-2">${t}</li>`).join('')}</ul></div></div></div>
       <div class="ic-card pad mt-3"><h5>Key terms</h5>${d.terms.map(t => `<div class="term"><b>${t[0]}</b> – ${t[1]}</div>`).join('')}</div>
       <div class="d-flex justify-content-between mt-4">${prev ? `<a class="btn btn-soft" href="#/study/${prev.n}">${icon('arrowL', 18)} Chapter ${prev.n}</a>` : '<span></span>'}${next ? `<a class="btn btn-primary" href="#/study/${next.n}">Chapter ${next.n} ${icon('arrowR', 18)}</a>` : `<a class="btn btn-primary" href="#/start">Start an exam ${icon('arrowR', 18)}</a>`}</div>`);
-    const toggle = key => { const m = IC.store.get('study.' + cert.id, {}); m[key] ? delete m[key] : (m[key] = true); IC.store.set('study.' + cert.id, m); const secs = IC.$$('details.sec'); const open = secs.map(x => x.open); chapter(cert, n); IC.$$('details.sec').forEach((x, i) => x.open = open[i]); };
+    const toggle = key => { const m = IC.store.get('study.' + cert.id, {}); m[key] ? delete m[key] : (m[key] = true); IC.store.set('study.' + cert.id, m); const secs = IC.$$('details.sec'); const open = secs.map(x => x.open); IC.keepScroll(); chapter(cert, n); IC.$$('details.sec').forEach((x, i) => x.open = open[i]); };
     IC.$('#secs').onclick = e => { const b = e.target.closest('[data-done],[data-ck]'); if (!b) return; e.preventDefault(); toggle(b.dataset.done || b.dataset.ck); };
   }
 
@@ -74,7 +74,9 @@
     const known = IC.store.get('flash.' + cert.id, {});
     if (fs.deck !== deck || !fs.order.length) { fs.deck = deck; fs.order = IC.shuffle(decks[deck][1]); fs.i = 0; fs.flip = false; }
     const pool = () => fs.onlyLearning ? fs.order.filter(c => !known[c.key]) : fs.order;
+    let first = true;
     function paint() {
+      if (!first) IC.keepScroll(); first = false;
       const list = pool(); const nKnown = decks[deck][1].filter(c => known[c.key]).length; const tot = decks[deck][1].length;
       if (fs.i >= list.length) fs.i = Math.max(0, list.length - 1);
       const c = list[fs.i];

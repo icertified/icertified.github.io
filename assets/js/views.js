@@ -2,7 +2,17 @@
 (function () {
   const IC = window.IC; const { esc, icon } = IC;
   IC.v = IC.v || {};
-  const view = html => { const el = IC.$('#view'); el.innerHTML = `<div class="fade-in">${html}</div>`; el.scrollTop = 0; window.scrollTo(0, 0); return el; };
+  let keepNext = false;
+  IC.keepScroll = () => { keepNext = true; };   // call before an in-place re-render so the page does not jump to the top
+  const view = html => {
+    const el = IC.$('#view'); const keep = keepNext; keepNext = false;
+    const main = document.querySelector('.ic-main');
+    const y = window.scrollY, my = main ? main.scrollTop : 0, vy = el.scrollTop;
+    el.innerHTML = `<div class="${keep ? '' : 'fade-in'}">${html}</div>`;
+    if (keep) { const r = () => { window.scrollTo(0, y); if (main) main.scrollTop = my; el.scrollTop = vy; }; r(); requestAnimationFrame(r); }
+    else { el.scrollTop = 0; window.scrollTo(0, 0); }
+    return el;
+  };
   IC.setView = view;
   const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 
