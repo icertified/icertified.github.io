@@ -3,12 +3,17 @@
   const IC = window.IC; const { esc, icon } = IC; let flashKey = null;
 
   const tabsHtml = cur => `<div class="tabs-ic">${[['', 'Study path'], ['flash', 'Flashcards'], ['terms', 'Key terms'], ['guide', 'Exam guide']].filter(t => t[0] !== 'guide' || (IC.cert() && IC.cert().study && IC.cert().study.guide)).map(t => `<a href="#/study${t[0] ? '/' + t[0] : ''}" class="${cur === t[0] ? 'on' : ''}">${t[1]}</a>`).join('')}</div>`;
-  const secHtml = (n, s, done, open) => {
+  const secHtml = (n, s, done, open, tp) => {
     let b = '';
-    if (s.bullets) b += `<ul>${s.bullets.map(x => `<li>${x}</li>`).join('')}</ul>`;
+    // Optional in-depth explanation (window.ICDETAIL[cert][chapter][sectionId]); the original bullets become "Quick revision".
+    const cid = IC.cert() && IC.cert().id; const dt = ((window.ICDETAIL || {})[cid] || {})[n]; const d = dt && dt[s.id];
+    if (d) {
+      b += `<div class="detail"><div class="detail-h">In depth</div>${(d.paras || []).map(p => `<p>${p}</p>`).join('')}${(d.list || []).length ? `<ul>${d.list.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}${(d.blocks || []).map(k => `<div class="callout ${k.t === 'warn' ? 'warn' : k.t === 'good' ? 'good' : ''}"><b>${k.h}</b>${k.x}</div>`).join('')}${d.table ? `<div class="table-responsive"><table class="tbl"><thead><tr>${d.table.head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${d.table.rows.map(r => `<tr>${r.map((c, i) => `<td>${i === 0 ? '<b>' + c + '</b>' : c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : ''}</div>`;
+    }
+    if (s.bullets) b += d ? `<div class="qrev"><div class="detail-h">Quick revision</div><ul>${s.bullets.map(x => `<li>${x}</li>`).join('')}</ul></div>` : `<ul>${s.bullets.map(x => `<li>${x}</li>`).join('')}</ul>`;
     if (s.table) b += `<div class="table-responsive"><table class="tbl"><thead><tr>${s.table.head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${s.table.rows.map(r => `<tr>${r.map((c, i) => `<td>${i === 0 ? '<b>' + c + '</b>' : c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
     if (s.callout) b += `<div class="callout ${s.callout.t === 'good' ? 'good' : s.callout.t === 'warn' ? 'warn' : ''}"><b>${s.callout.h}</b>${s.callout.x}</div>`;
-    return `<details class="sec" ${open ? 'open' : ''}><summary><span class="done-check ${done ? 'on' : ''}" data-ck="${n}.${s.id}">${icon('check', 14)}</span><span>${s.title}</span><span class="chev">${icon('chev', 18)}</span></summary><div class="body">${b}<div class="mt-3"><button class="btn btn-sm ${done ? 'btn-soft' : 'btn-primary'}" data-done="${n}.${s.id}">${done ? '✓ Studied – undo' : 'Mark as studied'}</button></div></div></details>`;
+    return `<details class="sec" ${open ? 'open' : ''}><summary><span class="done-check ${done ? 'on' : ''}" data-ck="${n}.${s.id}">${icon('check', 14)}</span><span>${s.title}</span><span class="chev">${icon('chev', 18)}</span></summary><div class="body">${b}<div class="mt-3"><button class="btn btn-sm ${done ? 'btn-soft' : 'btn-primary'}" data-done="${n}.${s.id}">${done ? '✓ Studied – undo' : 'Mark as studied'}</button>${tp ? ` <button class="btn btn-sm btn-outline-primary ms-1" data-start="${tp.id}">${icon('layers', 15)} Practise topic ${tp.t} (${tp.n} questions${tp.parts > 1 ? ', part 1' : ''})</button>` : ''}</div></div></details>`;
   };
 
   function overview(cert) {
@@ -28,11 +33,18 @@
     const S = cert.study; const c = cert.chapters.find(x => x.n === +n); const d = S.chapters[n];
     if (!c || !d) return overview(cert);
     const done = IC.store.get('study.' + cert.id, {});
+    // "Practise this topic": the last study section of each syllabus topic links to that topic's test.
+    const tOf = s => { const m = (s.title.match(/-(\d)\.(\d)\.\d/) || []); return m[1] ? m[1] + '.' + m[2] : null; };
+    const tests = (IC.catalogue(cert).chapters[n] || { sets: [] }).sets; const topicBtn = d.sections.map((s, i) => {
+      const t = tOf(s); if (!t || d.sections.slice(i + 1).some(x => tOf(x) === t)) return null;
+      const specs = tests.filter(x => x.topic === t); if (!specs.length) return null;
+      return { t, id: specs[0].id, n: specs.length > 1 ? specs[0].qids.length + ' of ' + specs.reduce((a, x) => a + x.qids.length, 0) : specs[0].qids.length, parts: specs.length };
+    });
     const prev = cert.chapters.find(x => x.n === c.n - 1), next = cert.chapters.find(x => x.n === c.n + 1);
     IC.setView(`<a href="#/study" class="small text-decoration-none">← Study path</a>
       <div class="d-flex flex-wrap align-items-center gap-3 mt-2 mb-3"><div class="chnum">${c.n}</div><div class="flex-grow-1"><h1 class="ic-page-title m-0">${esc(c.title)}</h1><div class="text-muted">${c.points} exam points · ${c.minutes} min of teaching</div></div><button class="btn btn-primary" data-go="#/chapters/${c.n}">${icon('layers', 18)} Practise this chapter</button></div>
       <div class="ic-card pad mb-3"><p class="mb-3">${d.summary}</p><h6>Learning objectives</h6>${c.los.map(l => `<div class="lo-row"><span class="lo-id">${l.id}</span><span class="badge-k k-${l.k}">${l.k}</span><div>${esc(l.t)}</div></div>`).join('')}</div>
-      <div id="secs">${d.sections.map((s, i) => secHtml(c.n, s, done[`${c.n}.${s.id}`], i === 0)).join('')}</div>
+      <div id="secs">${d.sections.map((s, i) => secHtml(c.n, s, done[`${c.n}.${s.id}`], i === 0, topicBtn[i])).join('')}</div>
       <div class="row g-3 mt-1"><div class="col-lg-6"><div class="ic-card pad h-100"><h5>${icon('bulb', 20)} Exam tips</h5><ul class="mb-0">${d.tips.map(t => `<li class="mb-2">${t}</li>`).join('')}</ul></div></div>
       <div class="col-lg-6"><div class="ic-card pad h-100"><h5>${icon('shield', 20)} Common traps</h5><ul class="mb-0">${d.traps.map(t => `<li class="mb-2">${t}</li>`).join('')}</ul></div></div></div>
       <div class="ic-card pad mt-3"><h5>Key terms</h5>${d.terms.map(t => `<div class="term"><b>${t[0]}</b> – ${t[1]}</div>`).join('')}</div>

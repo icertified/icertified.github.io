@@ -26,8 +26,8 @@ window.ICREGISTRY = [
     syllabusNote: 'Structure, learning objectives and exam rules follow the ISTQB CTFL Syllabus v4.0.1 (the errata release of v4.0) and the ISTQB Exam Structures &amp; Rules. All notes, flashcards and questions on iCertified are original.',
     officialUrl: 'https://www.istqb.org/certifications/certified-tester-foundation-level-ctfl-v4-0',
     defaultExamDate: '',
-    files: ['cert.js', 'study-ch1.js', 'study-ch2.js', 'study-ch3.js', 'study-ch4.js', 'study-ch5.js', 'study-ch6.js', 'study-guide.js',
-      'q-ch1.js', 'q-ch2.js', 'q-ch3.js', 'q-ch4.js', 'q-ch4b.js', 'q-ch5.js', 'q-ch5b.js', 'q-ch6.js']
+    files: ['cert.js', 'study-ch1.js', 'study-ch2.js', 'study-ch3.js', 'study-ch4.js', 'study-ch5.js', 'study-ch6.js', 'study-guide.js', 'detail-ch1.js', 'detail-ch2.js', 'detail-ch3.js', 'detail-ch4.js', 'detail-ch5.js', 'detail-ch6.js',
+      'q-ch1.js', 'q-ch2.js', 'q-ch3.js', 'q-ch4.js', 'q-ch4b.js', 'q-ch5.js', 'q-ch5b.js', 'q-ch6.js', 'q-extra.js']
   },
   {
     id: 'ct-genai',
@@ -43,6 +43,6 @@ window.ICREGISTRY = [
     officialUrl: 'https://istqb.org/certifications/gen-ai/',
     defaultExamDate: '',
     // loaded lazily, in this order, when the certification is opened
-    files: ['cert.js', 'study.js', 'q-ch1.js', 'q-ch2.js', 'q-ch3.js', 'q-ch4.js', 'q-ch5.js']
+    files: ['cert.js', 'study.js', 'detail-ch1.js', 'detail-ch2.js', 'detail-ch3.js', 'detail-ch4.js', 'detail-ch5.js', 'q-ch1.js', 'q-ch2.js', 'q-ch3.js', 'q-ch4.js', 'q-ch5.js', 'q-extra.js']
   }
 ];

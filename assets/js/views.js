@@ -111,15 +111,15 @@
       const s = st[n] || { c: 0, t: 0 };
       return view(`<a href="#/chapters" class="text-decoration-none small">← All chapters</a>
         <div class="d-flex flex-wrap align-items-center gap-3 mt-2 mb-4"><div class="chnum">${chp.n}</div><div class="flex-grow-1"><h1 class="ic-page-title m-0">${esc(chp.title)}</h1><div class="text-muted">${c.count} questions · ${chp.points} exam points · ${chp.minutes} min of teaching</div></div><button class="btn btn-soft" data-go="#/study/${n}">${icon('book', 18)} Study this chapter</button></div>
-        <div class="row g-3"><div class="col-lg-8"><div class="ic-card">${c.quick ? specRow(cert, c.quick, '<span class="ribbon">Random</span>') : ''}${c.sets.map(x => specRow(cert, x)).join('')}${c.full ? specRow(cert, c.full, '<span class="ribbon off">Full</span>') : ''}${!c.count ? '<div class="empty">No questions yet for this chapter.</div>' : ''}</div></div>
+        <div class="row g-3"><div class="col-lg-8">${c.count ? `<p class="small text-muted mb-2"><b>Suggested path:</b> study a topic, take its topic test, repeat for every topic, then finish with the Full Chapter Test.</p>` : ''}<div class="ic-card">${c.sets.length ? `<div class="px-3 pt-3 pb-1 detail-h">Topic tests</div>` : ''}${c.sets.map(x => specRow(cert, x)).join('')}${c.quick ? `<div class="px-3 pt-3 pb-1 detail-h">Mixed practice</div>` + specRow(cert, c.quick, '<span class="ribbon">Random</span>') : ''}${c.full ? `<div class="px-3 pt-3 pb-1 detail-h">Chapter test</div>` + specRow(cert, c.full, '<span class="ribbon off">Full</span>') : ''}${!c.count ? '<div class="empty">No questions yet for this chapter.</div>' : ''}</div></div>
         <div class="col-lg-4"><div class="ic-card pad"><h5>Your accuracy</h5>${accBar('Chapter ' + n, s.c, s.t)}<hr><h6>Learning objectives</h6>${chp.los.map(l => `<div class="lo-row"><span class="badge-k k-${l.k}">${l.k}</span><div class="small">${esc(l.t)}</div></div>`).join('')}</div></div></div>`);
     }
-    view(`<h1 class="ic-page-title">Chapter-wise tests</h1><p class="ic-sub">Master the syllabus one chapter at a time. Each chapter has short practice sets, a random quick quiz and a full chapter test.</p>
+    view(`<h1 class="ic-page-title">Chapter-wise tests</h1><p class="ic-sub">Master the syllabus one chapter at a time. Each chapter has a practice test for every topic, a random quick quiz and a full chapter test.</p>
       <div class="row g-3">${cert.chapters.map(chp => { const c = cat.chapters[chp.n]; const s = st[chp.n]; const p = s && s.t ? Math.round((s.c / s.t) * 100) : null;
         return `<div class="col-md-6 col-xl-4"><a class="ic-card hover tile" href="#/chapters/${chp.n}"><div class="d-flex gap-3 align-items-center"><div class="chnum">${chp.n}</div><div><h5>${esc(chp.title)}</h5></div></div>
-        <div class="meta"><span>${icon('list', 14)} ${c.count} questions</span><span>${icon('layers', 14)} ${c.sets.length} sets</span><span>${icon('award', 14)} ${chp.points} exam pts</span></div>
+        <div class="meta"><span>${icon('list', 14)} ${c.count} questions</span><span>${icon('layers', 14)} ${c.sets.length} topic tests</span><span>${icon('award', 14)} ${chp.points} exam pts</span></div>
         <div><div class="d-flex justify-content-between small text-muted mb-1"><span>Accuracy</span><span>${p == null ? 'not started' : p + '%'}</span></div><div class="progress"><div class="progress-bar" style="width:${p || 0}%"></div></div></div>
-        <div class="foot"><span class="text-primary fw-semibold">Open sets ${icon('arrowR', 16)}</span></div></a></div>`; }).join('')}</div>`);
+        <div class="foot"><span class="text-primary fw-semibold">Open tests ${icon('arrowR', 16)}</span></div></a></div>`; }).join('')}</div>`);
   };
 
   // ---------- WHOLE TESTS ----------

@@ -63,18 +63,21 @@
     cat.random = { id: 'random-whole', kind: 'random', title: 'iCertified Whole Test – Random Draw', subtitle: 'A fresh exam drawn to the official blueprint – questions you have not seen yet come first', gen: 'blueprint', minutes: cert.exam.minutes, shuffleOpts: true, mode: 'exam', ordered: true };
     cert.chapters.forEach(chp => {
       const pool = IC.pool(cert, q => q.ch === chp.n);
-      const rnd = IC.rng(IC.hashStr(cert.id + 'ch' + chp.n));
-      const sh = IC.shuffle(pool, rnd);
-      const nSets = Math.max(1, Math.round(sh.length / 10)); const size = Math.ceil(sh.length / nSets);
-      const list = [];
-      for (let i = 0; i < nSets; i++) {
-        const qs = sh.slice(i * size, (i + 1) * size).sort((a, b) => a.lo.localeCompare(b.lo, undefined, { numeric: true }));
-        if (!qs.length) continue;
-        list.push({ id: `ch${chp.n}-set${i + 1}`, kind: 'chapter', ch: chp.n, title: `Chapter ${chp.n} · Practice Set ${i + 1}`, subtitle: chp.title, qids: qs.map(q => q.id), minutes: estMinutes(cert, qs), shuffleOpts: true, shuffleQ: true, mode: 'practice' });
-      }
+      // One practice test per syllabus topic (e.g. 4.2 Black-box test techniques); big topics are split into parts of at most 20 questions.
+      const topicOf = lo => (lo.match(/(\d)\.(\d)\.\d$/) || []).slice(1, 3).join('.');
+      const byTopic = {}; pool.forEach(q => { const t = topicOf(q.lo); (byTopic[t] = byTopic[t] || []).push(q); });
+      const titles = cert.topicTitles || {}; const list = [];
+      Object.keys(byTopic).sort((x, y) => x.localeCompare(y, undefined, { numeric: true })).forEach(t => {
+        const qs = byTopic[t].slice().sort((x, y) => x.lo.localeCompare(y.lo, undefined, { numeric: true }) || x.id.localeCompare(y.id));
+        const parts = Math.max(1, Math.ceil(qs.length / 20)); const size = Math.ceil(qs.length / parts);
+        for (let i = 0; i < parts; i++) {
+          const sub = qs.slice(i * size, (i + 1) * size); if (!sub.length) continue;
+          list.push({ id: `ch${chp.n}-t${t}${parts > 1 ? 'p' + (i + 1) : ''}`, kind: 'chapter', ch: chp.n, topic: t, title: `Topic ${t} · ${titles[t] || 'Practice'}${parts > 1 ? ` (part ${i + 1} of ${parts})` : ''}`, subtitle: chp.title, qids: sub.map(q => q.id), minutes: estMinutes(cert, sub), shuffleOpts: true, shuffleQ: true, mode: 'practice' });
+        }
+      });
       cat.chapters[chp.n] = {
         count: pool.length, sets: list,
-        full: pool.length ? { id: `ch${chp.n}-full`, kind: 'chapter', ch: chp.n, title: `Chapter ${chp.n} · Full Chapter Test`, subtitle: chp.title, qids: pool.map(q => q.id), minutes: estMinutes(cert, pool), shuffleOpts: true, shuffleQ: true, mode: 'exam' } : null,
+        full: pool.length ? (() => { const nF = Math.min(pool.length, Math.max(15, Math.round(chp.points * 2.5))); return { id: `ch${chp.n}-full`, kind: 'chapter', ch: chp.n, title: `Chapter ${chp.n} · Full Chapter Test`, subtitle: `${chp.title} – exam-style, ${nF} questions from the whole chapter (least-seen first)`, gen: 'chapterFull', n: nF, minutes: Math.ceil(nF * 1.5), shuffleOpts: true, shuffleQ: true, mode: 'exam' }; })() : null,
         quick: pool.length ? { id: `ch${chp.n}-quick`, kind: 'chapter', ch: chp.n, title: `Chapter ${chp.n} · Quick 10 (random)`, subtitle: chp.title, gen: 'chapterRandom', n: 10, minutes: 15, shuffleOpts: true, shuffleQ: true, mode: 'practice' } : null
       };
     });
@@ -96,7 +99,7 @@
     if (spec.qids) qs = spec.qids.map(id => cert.qmap[id]);
     else if (spec.gen === 'blueprint') return { n: cert.exam.questions, total: cert.exam.totalPoints, pass: IC.passMark(cert, cert.exam.totalPoints), minutes: spec.minutes };
     else {
-      const avail = spec.gen === 'chapterRandom' ? IC.pool(cert, q => q.ch === spec.ch).length : spec.gen === 'mistakes' ? (IC.wrongQids ? IC.wrongQids(cert).length : spec.n) : IC.pool(cert).length;
+      const avail = (spec.gen === 'chapterRandom' || spec.gen === 'chapterFull') ? IC.pool(cert, q => q.ch === spec.ch).length : spec.gen === 'mistakes' ? (IC.wrongQids ? IC.wrongQids(cert).length : spec.n) : IC.pool(cert).length;
       const n = Math.min(spec.n, avail); return { n, total: Math.round(n * 1.2), pass: null, minutes: spec.minutes };
     }
     const total = qs.reduce((s, q) => s + IC.points(cert, q), 0);

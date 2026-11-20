@@ -24,6 +24,7 @@
       5: { K1: 4, K2: 3 }
     }
   },
+  topicTitles: {'1.1':'Generative AI foundations and key concepts','1.2':'Leveraging GenAI in software testing: core principles','2.1':'Effective prompt development','2.2':'Prompt engineering techniques for test tasks','2.3':'Evaluating GenAI results and refining prompts','3.1':'Hallucinations, reasoning errors and biases','3.2':'Data privacy and security risks','3.3':'Energy consumption and environmental impact','3.4':'AI regulations, standards and frameworks','4.1':'Architectural approaches for LLM-powered test infrastructure','4.2':'Fine-tuning and LLMOps','5.1':'Roadmap for adopting GenAI in testing','5.2':'Managing change when adopting GenAI'},
   chapters: [
     { n: 1, title: 'Introduction to Generative AI for Software Testing', minutes: 100, points: 7, los: [
       { id: 'GenAI-1.1.1', k: 'K1', t: 'Recall different types of AI: symbolic AI, classical machine learning, deep learning, and generative AI' },

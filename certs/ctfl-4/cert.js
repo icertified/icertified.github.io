@@ -25,6 +25,7 @@
       6: { K1: 1, K2: 1 }
     }
   },
+  topicTitles: {'1.1':'What is testing?','1.2':'Why is testing necessary?','1.3':'Testing principles','1.4':'Test activities, testware and test roles','1.5':'Essential skills and good practices','2.1':'Testing in the context of a software development lifecycle','2.2':'Test levels and test types','2.3':'Maintenance testing','3.1':'Static testing basics','3.2':'Feedback and the review process','4.1':'Test techniques overview','4.2':'Black-box test techniques','4.3':'White-box test techniques','4.4':'Experience-based test techniques','4.5':'Collaboration-based test approaches','5.1':'Test planning','5.2':'Risk management','5.3':'Test monitoring, control and completion','5.4':'Configuration management','5.5':'Defect management','6.1':'Tool support for testing','6.2':'Benefits and risks of test automation'},
   chapters: [
     { n: 1, title: 'Fundamentals of Testing', minutes: 180, points: 8, los: [
       { id: 'FL-1.1.1', k: 'K1', t: 'Identify typical test objectives' },

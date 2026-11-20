@@ -23,7 +23,7 @@
           ['Foundation LLM (base LLM)', 'General-purpose, pre-trained on vast, diverse data (text, code, images…); predicts the next word. Usually needs adaptation for specific tasks.', 'Powerful and flexible across domains'],
           ['Instruction-tuned LLM', 'Foundation model fine-tuned on prompt/response pairs → follows instructions, formats, styles. Sometimes called “non-reasoning”.', 'Task adherence, instruction following, response coherence'],
           ['Reasoning LLM', 'Extends instruction-tuned models: logical inference, multi-step problem solving, chain-of-thought, synthesis of complex information.', 'High-cognitive-load tasks, including technical domains']
-        ] }, bullets: ['The choice depends on the complexity and reasoning demands of the test task (the sample exam uses template/format tasks for instruction-tuned and trend analysis/prioritisation for reasoning LLMs).'] },
+        ] }, bullets: ['The choice depends on the complexity and reasoning demands of the test task (for example, template or format-conversion tasks suit instruction-tuned models, while trend analysis or prioritisation suits reasoning models).'] },
         { id: 'multimodal', title: 'Multimodal LLMs and vision-language models (GenAI-1.1.4)', bullets: [
           'Multimodal LLMs process several data types: text, images, sound, video. Tokenization is adapted per modality (images → embeddings via vision-language models).',
           '<b>Vision-language models are a subset of multimodal LLMs</b> (not the other way round): image captioning, visual Q&amp;A, checking consistency between image and text.',
@@ -37,7 +37,7 @@
           '<b>Test automation support</b> – generate test scripts from test case descriptions; improve existing scripts by suggesting changes and identifying appropriate test techniques.',
           '<b>Test result analysis</b> – summaries; classify anomalies by severity and priority.',
           '<b>Testware creation</b> – test plans, test reports, defect reports, kept up to date.'
-        ], callout: { t: 'warn', h: 'Limits', x: 'LLM output can be wrong (see Chapter 3) and needs human review. Exam note: “performing exploratory testing” and “generating complete application code” appear as <i>wrong</i> capability options in the official sample exam, although §1.2.2 says chatbots are useful for exploratory testing support.' } },
+        ], callout: { t: 'warn', h: 'Limits', x: 'LLM output can be wrong (see Chapter 3) and needs human review. Remember that GenAI supports testers but does not replace them: do not assume it can generate complete, correct applications or run testing on its own.' } },
         { id: 'interaction', title: 'AI chatbots vs LLM-powered testing applications (GenAI-1.2.2)', table: { head: ['', 'AI chatbot', 'LLM-powered testing application'], rows: [
           ['Interface', 'Conversational, natural language', 'LLM reached via APIs and embedded in test tools/frameworks'],
           ['Best for', 'Ad hoc, routine tasks, exploration, fast feedback, onboarding; usable by non-technical people', 'Well-defined, often automated tasks at scale (test generation, defect analysis, data synthesis)'],
@@ -189,7 +189,7 @@
           ['ISO/IEC 23053:2022', 'Standard', 'Framework for AI systems using ML – lifecycle, data quality, transparency, safety'],
           ['EU AI Act', 'Regulation', 'Legal framework classifying AI applications by risk level – transparency, accountability, bias mitigation'],
           ['NIST AI RMF 1.0 (US)', 'Framework', 'Managing AI risks: fairness, transparency, security']
-        ] }, bullets: ['Sample Exam A uses ISO/IEC 25010 and ISO/IEC/IEEE 29119 as wrong options; they are not in the 3.4.1 list.'] }
+        ] } }
       ],
       terms: [['Hallucination', 'Wrong information created by an LLM.'], ['Reasoning error', 'Faulty conclusion caused by misinterpreting logical structure.'], ['Bias', 'Systematic skew in outputs inherited from training data.'], ['Temperature', 'Parameter controlling randomness of output during inference.'], ['Context manipulation', 'Requests designed to extract confidential training data.'], ['Data privacy', 'Protection of personal/sensitive information.'], ['Vulnerability', 'Weakness that can be exploited.'], ['Security', 'Protection from unauthorised access and attacks.']],
       tips: ['Pair each attack vector with its example; they are classic matching questions.', 'For the K3 question: work out what the briefing says, then find the output element that isn’t supported.'],
@@ -352,7 +352,7 @@
     plan: [
       ['Week 1', 'Chapters 1 and 2 (study notes → chapter tests). Do the six prompt components and three techniques until automatic. Write 10 real prompts yourself in any chatbot.'],
       ['Week 2', 'Chapters 3, 4 and 5. Daily: flashcards (15 min) + one chapter set. Take the Weak-Areas Drill every second day.'],
-      ['Week 3', 'Mocks: ISTQB sample exam in exam mode, then Mocks 1–3. Review <i>every</i> explanation. Target ≥ 80% twice in a row.'],
+      ['Week 3', 'Mocks: the official ISTQB sample exam (from istqb.org) in exam mode, then Mocks 1–3. Review <i>every</i> explanation. Target ≥ 80% twice in a row.'],
       ['Last 2 days', 'Retry My Mistakes, flashcards, the K3 chapter-2 sets, exam guide. Rest the evening before.']
     ],
     checklist: ['Check ID and booking confirmation; know whether your exam is online-proctored or at a centre.', 'Test your equipment and room if remote.', 'Know your time plan (two passes, 5-minute check).', 'Sleep, water, calm – you only need 30 of 46 points.']
