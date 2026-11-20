@@ -302,3 +302,14 @@ body.focus-mode .ic-footer { display: none; }
 .cert-link { text-decoration: none; color: inherit; }
 .cert-link h5 { font-size: 1rem; }
 .ic-ext a { color: var(--ic-primary); }
+
+/* Sticky study progress bar */
+.sprog { position: sticky; top: 72px; z-index: 1020; display: flex; align-items: center; gap: 14px; padding: 10px 14px; margin: 0 0 14px; background: var(--ic-card, #fff); border: 1px solid var(--ic-border, rgba(128,128,128,.25)); border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+.sprog .sp-main { flex: 1; min-width: 0; }
+.sprog .sp-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: .85rem; margin-bottom: 6px; }
+.sprog .sp-top b { font-size: 1rem; }
+.sprog .sp-topic { color: var(--ic-muted, #8a93a6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.sprog .sp-topic.ok { color: #22a06b; font-weight: 600; }
+.sprog .sp-bar { height: 6px; }
+.sprog .sp-act { display: flex; gap: 8px; flex-shrink: 0; }
+@media (max-width: 575px) { .sprog { top: 68px; padding: 8px 10px; gap: 8px; } .sprog .sp-txt, .sprog .sp-ttl { display: none; } }

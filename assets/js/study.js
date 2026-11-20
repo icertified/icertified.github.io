@@ -13,7 +13,7 @@
     if (s.bullets) b += d ? `<div class="qrev"><div class="detail-h">Quick revision</div><ul>${s.bullets.map(x => `<li>${x}</li>`).join('')}</ul></div>` : `<ul>${s.bullets.map(x => `<li>${x}</li>`).join('')}</ul>`;
     if (s.table) b += `<div class="table-responsive"><table class="tbl"><thead><tr>${s.table.head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${s.table.rows.map(r => `<tr>${r.map((c, i) => `<td>${i === 0 ? '<b>' + c + '</b>' : c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
     if (s.callout) b += `<div class="callout ${s.callout.t === 'good' ? 'good' : s.callout.t === 'warn' ? 'warn' : ''}"><b>${s.callout.h}</b>${s.callout.x}</div>`;
-    return `<details class="sec" ${open ? 'open' : ''}><summary><span class="done-check ${done ? 'on' : ''}" data-ck="${n}.${s.id}">${icon('check', 14)}</span><span>${s.title}</span><span class="chev">${icon('chev', 18)}</span></summary><div class="body">${b}<div class="mt-3"><button class="btn btn-sm ${done ? 'btn-soft' : 'btn-primary'}" data-done="${n}.${s.id}">${done ? '✓ Studied – undo' : 'Mark as studied'}</button>${tp ? ` <button class="btn btn-sm btn-outline-primary ms-1" data-start="${tp.id}">${icon('layers', 15)} Practise topic ${tp.t} (${tp.n} questions${tp.parts > 1 ? ', part 1' : ''})</button>` : ''}</div></div></details>`;
+    return `<details class="sec" id="sec-${n}-${s.id}" ${open ? 'open' : ''}><summary><span class="done-check ${done ? 'on' : ''}" data-ck="${n}.${s.id}">${icon('check', 14)}</span><span>${s.title}</span><span class="chev">${icon('chev', 18)}</span></summary><div class="body">${b}<div class="mt-3"><button class="btn btn-sm ${done ? 'btn-soft' : 'btn-primary'}" data-done="${n}.${s.id}">${done ? '✓ Studied – undo' : 'Mark as studied'}</button>${tp ? ` <button class="btn btn-sm btn-outline-primary ms-1" data-start="${tp.id}">${icon('layers', 15)} Practise topic ${tp.t} (${tp.n} questions${tp.parts > 1 ? ', part 1' : ''})</button>` : ''}</div></div></details>`;
   };
 
   function overview(cert) {
@@ -40,17 +40,37 @@
       const specs = tests.filter(x => x.topic === t); if (!specs.length) return null;
       return { t, id: specs[0].id, n: specs.length > 1 ? specs[0].qids.length + ' of ' + specs.reduce((a, x) => a + x.qids.length, 0) : specs[0].qids.length, parts: specs.length };
     });
+    // Sticky progress bar: chapter %, current topic, next unstudied section, topic test shortcut.
+    const isDone = s => !!done[`${c.n}.${s.id}`];
+    const nDone = d.sections.filter(isDone).length, nAll = d.sections.length, pctC = nAll ? Math.round(nDone / nAll * 100) : 0;
+    const nxt = d.sections.find(s => !isDone(s));
+    const curT = nxt ? tOf(nxt) : null;
+    const topicSecs = curT ? d.sections.filter(s => tOf(s) === curT) : [];
+    const tDone = topicSecs.filter(isDone).length;
+    const tSpec = curT ? tests.filter(x => x.topic === curT)[0] : null;
+    const tTitle = curT && cert.topicTitles && cert.topicTitles[curT];
+    const progBar = `<div class="sprog" role="status" aria-label="Chapter progress">
+      <div class="sp-main"><div class="sp-top"><b>${pctC}%</b><span class="sp-txt">${nDone} of ${nAll} sections studied</span>${curT ? `<span class="sp-topic">Topic ${curT}${tTitle ? '<span class="sp-ttl"> · ' + esc(tTitle) + '</span>' : ''}: ${tDone}/${topicSecs.length}</span>` : '<span class="sp-topic ok">Chapter complete ✓</span>'}</div>
+      <div class="progress sp-bar"><div class="progress-bar" style="width:${pctC}%"></div></div></div>
+      <div class="sp-act">${nxt ? `<button class="btn btn-sm btn-soft" data-jump="sec-${c.n}-${nxt.id}" title="${esc(nxt.title)}">Next ${icon('arrowR', 14)}</button>` : ''}${tSpec ? `<button class="btn btn-sm ${tDone === topicSecs.length ? 'btn-primary' : 'btn-outline-primary'}" data-start="${tSpec.id}">${icon('layers', 14)} <span class="d-none d-sm-inline">Practise topic </span>${curT}</button>` : ''}${!nxt ? `<button class="btn btn-sm btn-primary" data-go="#/chapters/${c.n}">${icon('layers', 14)} Chapter test</button>` : ''}</div></div>`;
     const prev = cert.chapters.find(x => x.n === c.n - 1), next = cert.chapters.find(x => x.n === c.n + 1);
     IC.setView(`<a href="#/study" class="small text-decoration-none">← Study path</a>
       <div class="d-flex flex-wrap align-items-center gap-3 mt-2 mb-3"><div class="chnum">${c.n}</div><div class="flex-grow-1"><h1 class="ic-page-title m-0">${esc(c.title)}</h1><div class="text-muted">${c.points} exam points · ${c.minutes} min of teaching</div></div><button class="btn btn-primary" data-go="#/chapters/${c.n}">${icon('layers', 18)} Practise this chapter</button></div>
       <div class="ic-card pad mb-3"><p class="mb-3">${d.summary}</p><h6>Learning objectives</h6>${c.los.map(l => `<div class="lo-row"><span class="lo-id">${l.id}</span><span class="badge-k k-${l.k}">${l.k}</span><div>${esc(l.t)}</div></div>`).join('')}</div>
+      ${progBar}
       <div id="secs">${d.sections.map((s, i) => secHtml(c.n, s, done[`${c.n}.${s.id}`], i === 0, topicBtn[i])).join('')}</div>
       <div class="row g-3 mt-1"><div class="col-lg-6"><div class="ic-card pad h-100"><h5>${icon('bulb', 20)} Exam tips</h5><ul class="mb-0">${d.tips.map(t => `<li class="mb-2">${t}</li>`).join('')}</ul></div></div>
       <div class="col-lg-6"><div class="ic-card pad h-100"><h5>${icon('shield', 20)} Common traps</h5><ul class="mb-0">${d.traps.map(t => `<li class="mb-2">${t}</li>`).join('')}</ul></div></div></div>
       <div class="ic-card pad mt-3"><h5>Key terms</h5>${d.terms.map(t => `<div class="term"><b>${t[0]}</b> – ${t[1]}</div>`).join('')}</div>
       <div class="d-flex justify-content-between mt-4">${prev ? `<a class="btn btn-soft" href="#/study/${prev.n}">${icon('arrowL', 18)} Chapter ${prev.n}</a>` : '<span></span>'}${next ? `<a class="btn btn-primary" href="#/study/${next.n}">Chapter ${next.n} ${icon('arrowR', 18)}</a>` : `<a class="btn btn-primary" href="#/start">Start an exam ${icon('arrowR', 18)}</a>`}</div>`);
     const toggle = key => { const m = IC.store.get('study.' + cert.id, {}); m[key] ? delete m[key] : (m[key] = true); IC.store.set('study.' + cert.id, m); const secs = IC.$$('details.sec'); const open = secs.map(x => x.open); IC.keepScroll(); chapter(cert, n); IC.$$('details.sec').forEach((x, i) => x.open = open[i]); };
-    IC.$('#secs').onclick = e => { const b = e.target.closest('[data-done],[data-ck]'); if (!b) return; e.preventDefault(); toggle(b.dataset.done || b.dataset.ck); };
+    const sp = IC.$('.sprog'); if (sp) sp.onclick = e => {
+      const j = e.target.closest('[data-jump]'); if (!j) return;
+      const el = document.getElementById(j.dataset.jump); if (!el) return;
+      IC.$$('details.sec').forEach(x => { x.open = x === el; });
+      const top = el.getBoundingClientRect().top + window.scrollY - 150; window.scrollTo({ top, behavior: 'smooth' });
+    };
+    IC.$('#secs').onclick =e => { const b = e.target.closest('[data-done],[data-ck]'); if (!b) return; e.preventDefault(); toggle(b.dataset.done || b.dataset.ck); };
   }
 
   function terms(cert) {
