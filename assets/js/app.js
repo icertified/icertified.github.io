@@ -161,7 +161,7 @@
     const t = e.target.closest('[data-go],[data-start],[data-act],[data-cert],.ic-backdrop,.ic-nav a'); if (!t) return;
     if (t.matches('.ic-backdrop') || t.matches('.ic-nav a')) { document.body.classList.remove('nav-open'); if (t.matches('.ic-nav a')) return; }
     if (t.dataset.go) { e.preventDefault(); location.hash = t.dataset.go; return; }
-    if (t.dataset.start) { e.preventDefault(); const spec = IC.findSpec(state.cert, t.dataset.start); if (spec) IC.startDialog(state.cert, spec); return; }
+    if (t.dataset.start) { e.preventDefault(); const spec = IC.findSpec(state.cert, t.dataset.start); if (spec) IC.startDialog(state.cert, spec); else if (/^retry-/.test(t.dataset.start)) { IC.toast('Nothing left to retry from that test – all its questions are now answered correctly.'); IC.route(); } return; }
     if (t.dataset.cert) { e.preventDefault(); document.body.classList.remove('nav-open'); IC.selectCert(t.dataset.cert, t.dataset.to); return; }
     const a = t.dataset.act; if (!a) return; e.preventDefault();
     if (a === 'menu') document.body.classList.toggle('nav-open');

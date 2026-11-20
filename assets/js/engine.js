@@ -84,11 +84,30 @@
     cat.quick = {
       mixed: { id: 'quick-mixed', kind: 'quick', title: 'Quick Quiz · 10 mixed questions', subtitle: 'Ten questions from every chapter – unseen ones come first', gen: 'mixed', n: 10, minutes: 15, shuffleOpts: true, mode: 'practice' },
       weak: { id: 'quick-weak', kind: 'quick', title: 'Weak-Areas Drill', subtitle: 'Questions from the chapters where you score lowest', gen: 'weak', n: 15, minutes: 22, shuffleOpts: true, mode: 'practice' },
-      mistakes: { id: 'quick-mistakes', kind: 'quick', title: 'Retry My Mistakes', subtitle: 'Questions you answered wrongly in earlier tests', gen: 'mistakes', n: 20, minutes: 30, shuffleOpts: true, mode: 'practice' }
+      mistakes: { id: 'quick-mistakes', kind: 'quick', title: 'Retry All My Past Mistakes', subtitle: 'Questions whose latest answer was wrong, from all your earlier tests', gen: 'mistakes', n: 20, minutes: 30, shuffleOpts: true, mode: 'practice' }
     };
     cert.__cat = cat; return cat;
   };
+  // Questions missed (wrong or unanswered) in one specific attempt.
+  // Latest ANSWERED result per question over all attempts (attempts are stored newest-first): qid -> true (right) / false (wrong).
+  IC.latestState = cert => {
+    const st = {};
+    IC.attempts(cert.id).forEach(a => (a.questions || []).forEach(it => { const q = cert.qmap[it.id]; const ans = (a.answers || {})[it.id]; if (!q || it.id in st || !ans || !ans.length) return; st[it.id] = IC.isCorrect(q, ans); }));
+    return st;
+  };
+  // Questions missed (wrong/unanswered) in `at` that are NOT yet fixed – i.e. not answered correctly in a later attempt.
+  // `all` = true returns every miss of the attempt regardless. `st` can be passed in to avoid recomputing per row.
+  IC.missedIn = (cert, at, all, st) => {
+    st = st || IC.latestState(cert);
+    return (at.questions || []).filter(it => { const q = cert.qmap[it.id]; if (!q || IC.isCorrect(q, (at.answers || {})[it.id])) return false; return all || st[it.id] !== true; }).map(it => it.id);
+  };
+  // "Retry the questions I missed in this test" – a spec built on the fly from one attempt (id: retry-<attemptId>).
+  IC.retrySpec = (cert, at) => {
+    const qids = IC.missedIn(cert, at); if (!qids.length) return null;
+    return { id: 'retry-' + at.id, kind: 'quick', title: 'Retry missed · ' + at.title, subtitle: `The ${qids.length} question${qids.length > 1 ? 's' : ''} you missed in “${at.title}”`, qids, n: qids.length, minutes: Math.max(5, Math.ceil(qids.length * 1.5)), shuffleOpts: true, shuffleQ: true, mode: 'practice' };
+  };
   IC.findSpec = (cert, id) => {
+    if (/^retry-/.test(id)) { const at = IC.getAttempt(cert.id, id.slice(6)); return at ? IC.retrySpec(cert, at) : null; }
     const c = IC.catalogue(cert);
     const all = [...c.official, ...c.mocks, c.random, c.quick.mixed, c.quick.weak, c.quick.mistakes];
     Object.values(c.chapters).forEach(x => { all.push(...x.sets); if (x.full) all.push(x.full); if (x.quick) all.push(x.quick); });

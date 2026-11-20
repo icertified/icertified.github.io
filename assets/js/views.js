@@ -27,8 +27,10 @@
     return res;
   };
   IC.wrongQids = cert => {
+    // Attempts are newest-first: the latest ANSWERED result for a question decides. A question you got wrong once
+    // but answered correctly later is no longer a mistake.
     const seen = new Set(), out = [];
-    IC.attempts(cert.id).forEach(a => a.questions.forEach(it => { const q = cert.qmap[it.id]; if (!q || seen.has(it.id)) return; const ans = a.answers[it.id]; if (ans && ans.length && !IC.isCorrect(q, ans)) { seen.add(it.id); out.push(it.id); } }));
+    IC.attempts(cert.id).forEach(a => a.questions.forEach(it => { const q = cert.qmap[it.id]; if (!q || seen.has(it.id)) return; const ans = a.answers[it.id]; if (!ans || !ans.length) return; seen.add(it.id); if (!IC.isCorrect(q, ans)) out.push(it.id); }));
     return out;
   };
 
@@ -137,15 +139,15 @@
   IC.v.results = cert => {
     const list = IC.attempts(cert.id).filter(a => a.result); const st = IC.chapterStats(cert.id); const wrong = IC.wrongQids(cert).length; const cat = IC.catalogue(cert);
     if (!list.length) return view(`<h1 class="ic-page-title">My results</h1><div class="ic-card empty mt-3">${icon('chart', 36)}<h5 class="mt-2">No completed tests yet</h5><p>Take a quiz or a mock exam and your scores and weak areas will show up here.</p><button class="btn btn-primary" data-go="#/start">Start exam</button></div>`);
-    const best = Math.max(...list.map(a => a.result.pct)); const passes = list.filter(a => a.result.pass).length;
+    const lst = IC.latestState(cert); const best = Math.max(...list.map(a => a.result.pct)); const passes = list.filter(a => a.result.pass).length;
     const weakest = cert.chapters.map(c => ({ c, s: st[c.n] })).filter(x => x.s && x.s.t).sort((a, b) => a.s.c / a.s.t - b.s.c / b.s.t)[0];
     view(`<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3"><div><h1 class="ic-page-title">My results</h1><div class="text-muted">${esc(IC.name() || '')}</div></div>
-      <div class="d-flex gap-2"><button class="btn btn-primary" data-start="${esc(cat.quick.mistakes.id)}" ${wrong ? '' : 'disabled'}>${icon('refresh', 18)} Retry my mistakes (${wrong})</button><button class="btn btn-soft" data-act="clear">${icon('trash', 18)} Clear history</button></div></div>
+      <div class="d-flex gap-2"><button class="btn btn-primary" data-start="${esc(cat.quick.mistakes.id)}" ${wrong ? '' : 'disabled'}>${icon('refresh', 18)} Retry all my past mistakes (${wrong})</button><button class="btn btn-soft" data-act="clear">${icon('trash', 18)} Clear history</button></div></div>
       <div class="row g-3 mb-4"><div class="col-6 col-xl-3"><div class="ic-card stat"><div class="ico">${icon('list', 22)}</div><div><b>${list.length}</b><span>Tests completed</span></div></div></div>
       <div class="col-6 col-xl-3"><div class="ic-card stat"><div class="ico w">${icon('award', 22)}</div><div><b>${best}%</b><span>Best score</span></div></div></div>
       <div class="col-6 col-xl-3"><div class="ic-card stat"><div class="ico t">${icon('check', 22)}</div><div><b>${passes}/${list.length}</b><span>Passed (≥ ${cert.exam.passPercent}%)</span></div></div></div>
       <div class="col-6 col-xl-3"><div class="ic-card stat"><div class="ico">${icon('target', 22)}</div><div><b>${weakest ? 'Ch ' + weakest.c.n : '—'}</b><span>Weakest chapter</span></div></div></div></div>
       <div class="row g-3"><div class="col-lg-5"><div class="ic-card pad h-100"><h5 class="mb-3">Accuracy by chapter</h5>${cert.chapters.map(c => accBar('Chapter ' + c.n, (st[c.n] || {}).c || 0, (st[c.n] || {}).t || 0)).join('')}${weakest ? `<div class="callout warn"><b>Focus next</b>Chapter ${weakest.c.n} “${esc(weakest.c.title)}” – <a href="#/study/${weakest.c.n}">review the notes</a> or <a href="#/chapters/${weakest.c.n}">practise it</a>.</div>` : ''}</div></div>
-      <div class="col-lg-7"><div class="ic-card">${list.map(a => `<div class="setrow"><div class="t"><b>${esc(a.title)}</b><small>${IC.fmtDate(a.ended || a.started)} · ${a.mode} · ${a.result.correct}/${a.result.n} correct · ${IC.fmtDur((a.ended || a.started) - a.started >= 0 ? ((a.ended || a.started) - a.started) / 1000 : 0)}</small></div><span class="chip ${a.result.pass ? 'ok' : 'bad'}">${a.result.pct}% · ${a.result.pass ? 'Pass' : 'Fail'}</span><button class="btn btn-soft btn-sm" data-go="#/result/${a.id}">Review</button></div>`).join('')}</div></div></div>`);
+      <div class="col-lg-7"><div class="ic-card">${list.map(a => `<div class="setrow"><div class="t"><b>${esc(a.title)}</b><small>${IC.fmtDate(a.ended || a.started)} · ${a.mode} · ${a.result.correct}/${a.result.n} correct · ${IC.fmtDur((a.ended || a.started) - a.started >= 0 ? ((a.ended || a.started) - a.started) / 1000 : 0)}</small></div><span class="chip ${a.result.pass ? 'ok' : 'bad'}">${a.result.pct}% · ${a.result.pass ? 'Pass' : 'Fail'}</span><button class="btn btn-soft btn-sm" data-go="#/result/${a.id}">Review</button>${(() => { const k = IC.missedIn(cert, a, false, lst).length; return k ? `<button class="btn btn-outline-primary btn-sm ms-1" data-start="retry-${a.id}" title="Replay only the questions from this test that you have not answered correctly since">${icon('refresh', 14)} Retry ${k} missed</button>` : ''; })()}</div>`).join('')}</div></div></div>`);
   };
 })();
