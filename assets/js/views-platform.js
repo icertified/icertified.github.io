@@ -1,5 +1,28 @@
 /* iCertified – platform-level views (landing, catalogue, my learning) and the certification dashboard + syllabus */
 (function () {
+  // External links for taking the real exam. Kept in one place so they are easy to update.
+  const LINKS = {
+    providers: 'https://istqb.org/exam-providers/',
+    boards: 'https://istqb.org/member-boards/',
+    pstb: 'https://pstb.pk/'
+  };
+  const ext = (href, html, cls) => `<a class="${cls || ''}" href="${href}" target="_blank" rel="noopener noreferrer">${html}</a>`;
+  const NOT_AFFILIATED = 'iCertified is an independent study platform. It is not affiliated with, endorsed by or a partner of ISTQB or any member board, and it does not sell or conduct exams. Exam fees, dates and rules are set by the exam provider, so always check their official site.';
+  // "Ready to certify?" block: where to register for the real exam (global first, Pakistan shortcut)
+  const certifyBlock = (cert, compact) => {
+    const off = cert && cert.reg && cert.reg.officialUrl;
+    const tile = (ico, t, d, href, cta) => `<div class="${off ? 'col-md-6 col-xl-3' : 'col-md-4'}"><a class="ic-card hover tile h-100 cert-link" href="${href}" target="_blank" rel="noopener noreferrer"><div class="d-flex gap-3 align-items-center"><span class="chnum sm">${icon(ico, 18)}</span><h5 class="m-0">${t}</h5></div><p class="text-muted small mb-2">${d}</p><div class="foot"><span class="text-primary fw-semibold">${cta} ${icon('arrowR', 16)}</span></div></a></div>`;
+    const tiles = [
+      ...(off ? [tile('award', 'Official exam page', 'Syllabus, exam rules and sample papers for ' + esc(cert.short) + ' on the ISTQB website.', off, 'Open on istqb.org')] : []),
+      tile('search', 'Find an exam provider', 'ISTQB exams are offered by licensed exam providers and member boards, in person or online.', LINKS.providers, 'Search providers'),
+      tile('globe', 'Find your country’s board', 'Registration is handled locally. Find the ISTQB member board for your country.', LINKS.boards, 'Member boards'),
+      tile('pin', 'In Pakistan: PSTB', 'The Pakistan Software Testing Board is the ISTQB member board for Pakistan.', LINKS.pstb, 'Open pstb.pk')
+    ];
+    return `<section class="${compact ? 'mt-4' : 'mb-5'}"><div class="${compact ? 'mb-3' : 'text-center mb-4'}"><span class="eyebrow">Ready to certify?</span><h2 class="${compact ? 'h5 m-0' : 'lp-h2'}">Take the real exam</h2>${compact ? '' : '<p class="ic-sub mx-auto" style="max-width:640px">Once you are scoring well in the mock exams, register for the official exam. Where you register depends on your country.</p>'}</div>
+      <div class="row g-3">${tiles.join('')}</div>
+      <p class="small text-muted mt-3 mb-0">${NOT_AFFILIATED}</p></section>`;
+  };
+
   const IC = window.IC; const { esc, icon } = IC;
   IC.v = IC.v || {};
   const view = html => IC.setView(html);
@@ -76,6 +99,7 @@
       <section class="mb-5"><div class="d-flex flex-wrap justify-content-between align-items-end mb-3 gap-2"><div><span class="eyebrow">Available now</span><h2 class="lp-h2 m-0">Certifications</h2></div><button class="btn btn-soft" data-go="#/certs">Browse all ${icon('arrowR', 16)}</button></div>
         <div class="row g-3" id="lpCerts">${loadingHtml}</div></section>
 
+      ${certifyBlock(null, false)}
       <section class="lp-cta"><h3>Ready to start preparing${name ? ', ' + esc(name.split(' ')[0]) : ''}?</h3><p>Pick a certification and start learning in under a minute.</p><button class="btn btn-light btn-lg" data-go="#/certs">${icon('play', 20)} Start learning</button></section>`);
     IC.loadAll().then(() => { const el = IC.$('#lpCerts'); if (!el) return; el.innerHTML = reg.map(r => certCard(r, IC.registry().length && window.ICERT[r.id] && window.ICERT[r.id].__ready ? window.ICERT[r.id] : null, true)).join(''); });
   };
@@ -137,7 +161,7 @@
           <div class="callout"><b>Insight</b>Chapter ${heavy.n} (${esc(heavy.title)}) is worth the most – ${heavy.points} of ${ex.totalPoints} points.${k3 ? ` ${plural(k3, 'question')} test application (K3)${k3pts > 1 ? `, worth ${k3pts} points each` : ''}.` : ''}</div></div></div>
         <div class="col-lg-5"><div class="ic-card pad h-100"><h5>Exam at a glance</h5><div class="kv mt-3"><div><b>${ex.questions}</b><span>questions</span></div><div><b>${ex.minutes} min</b><span>(+${ex.extraPercent}% non-native)</span></div><div><b>${ex.totalPoints}</b><span>points</span></div><div><b>${IC.passMark(cert, ex.totalPoints)}</b><span>to pass (${ex.passPercent}%)</span></div></div>
           <p class="small text-muted mt-3 mb-0">Prerequisite: ${esc(cert.prerequisite)}. ${k3pts > 1 ? `K3 questions are worth ${k3pts} points; K1 and K2 are worth 1.` : 'Every question is worth 1 point.'}</p></div></div>
-      </div>`);
+      </div>${certifyBlock(cert, true)}`);
     const hg = IC.$('#heroGo'); if (hg) { const hn = IC.$('#heroName'); const go = () => { const v = hn.value.trim(); if (!v) { hn.focus(); hn.style.outline = '3px solid #fecaca'; return; } IC.store.set('name', v); IC.renderChrome(); IC.v.overview(cert); }; hg.onclick = go; hn.onkeydown = e => { if (e.key === 'Enter') go(); }; }
   };
 

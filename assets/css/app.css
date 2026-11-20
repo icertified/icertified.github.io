@@ -297,3 +297,8 @@ body.focus-mode .ic-footer { display: none; }
 .detail-h { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--ic-muted); margin-bottom: 8px; }
 .qrev { margin-top: 14px; padding: 12px 16px; border: 1px dashed var(--ic-border); border-radius: 12px; background: color-mix(in srgb, var(--ic-border) 22%, transparent); }
 .qrev ul { margin-bottom: 0; }
+
+/* Take-the-real-exam links */
+.cert-link { text-decoration: none; color: inherit; }
+.cert-link h5 { font-size: 1rem; }
+.ic-ext a { color: var(--ic-primary); }
